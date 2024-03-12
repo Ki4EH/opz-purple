@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Ki4EH/opz-purple/internal/api"
 	"github.com/Ki4EH/opz-purple/internal/config"
 	"github.com/Ki4EH/opz-purple/internal/logger"
 	"github.com/Ki4EH/opz-purple/pkg/database"
@@ -19,18 +20,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Successfully connected!")
 
 	tree := location.GetLocationsTree()
 	tree.PrintTree(0)
 
 	srv := &http.Server{
 		Addr:         cfg.Address,
-		Handler:      nil,
+		Handler:      api.SetupRoutes(),
 		ReadTimeout:  cfg.Timeout,
 		WriteTimeout: cfg.Timeout,
 		IdleTimeout:  cfg.IdleTimeout,
 	}
+
 	logging.Info("[SERVER] Starting server")
 
 	if err := srv.ListenAndServe(); err != nil {
