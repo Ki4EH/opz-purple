@@ -2,18 +2,20 @@ package location
 
 import (
 	"fmt"
-	"sort"
+	"github.com/Ki4EH/opz-purple/pkg/utils"
 )
 
 func GetLocationsTree() *LocationNode {
 	// Создаем корневую локацию - Все регионы
 	allRegions := NewLocation("Все регионы")
 
-	var keys []string
-	for region := range rawLocations {
-		keys = append(keys, region)
-	}
-	sort.Strings(keys)
+	//var keys []string
+	//for region := range rawLocations {
+	//	keys = append(keys, region)
+	//}
+	//sort.Strings(keys)
+
+	keys := utils.GetKeys(rawLocations)
 
 	for _, region := range keys {
 		regionNode := NewLocation(region)

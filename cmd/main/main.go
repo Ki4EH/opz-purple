@@ -7,7 +7,6 @@ import (
 	"github.com/Ki4EH/opz-purple/internal/logger"
 	"github.com/Ki4EH/opz-purple/pkg/database"
 	_ "github.com/Ki4EH/opz-purple/pkg/database"
-	"github.com/Ki4EH/opz-purple/pkg/treebase/location"
 	_ "github.com/lib/pq"
 	"net/http"
 )
@@ -20,9 +19,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	tree := location.GetLocationsTree()
-	tree.PrintTree(0)
 
 	srv := &http.Server{
 		Addr:         cfg.Address,

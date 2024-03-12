@@ -2,16 +2,19 @@ package microcategory
 
 import (
 	"fmt"
+	"github.com/Ki4EH/opz-purple/pkg/utils"
 )
 
 func GetCategoriesTree() *CategoryNode {
 	// Создаем корневую категорию - ROOT
 	rootNode := NewCategory("ROOT")
 
-	for category, subCategories := range rawCategories {
+	keys := utils.GetKeys(rawCategories)
+
+	for _, category := range keys {
 		categoryNode := NewCategory(category)
 
-		for _, subCategory := range subCategories {
+		for _, subCategory := range rawCategories[category] {
 			subCategoryNode := NewCategory(subCategory)
 			categoryNode.AddChild(subCategoryNode)
 		}
