@@ -2,16 +2,23 @@ package location
 
 import (
 	"fmt"
+	"sort"
 )
 
 func GetLocationsTree() *LocationNode {
 	// Создаем корневую локацию - Все регионы
 	allRegions := NewLocation("Все регионы")
 
-	for region, cities := range rawLocations {
+	var keys []string
+	for region := range rawLocations {
+		keys = append(keys, region)
+	}
+	sort.Strings(keys)
+
+	for _, region := range keys {
 		regionNode := NewLocation(region)
 
-		for _, city := range cities {
+		for _, city := range rawLocations[region] {
 			cityNode := NewLocation(city)
 			regionNode.AddChild(cityNode)
 		}
