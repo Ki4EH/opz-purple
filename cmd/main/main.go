@@ -15,10 +15,11 @@ func main() {
 	cfg := config.MustLoad()
 	fmt.Println(cfg)
 	logging, _ := logger.NewFileLogger()
-	_, err := database.ConnectToDB(cfg.Host, cfg.Port, cfg.UserName, cfg.Password, cfg.Name)
+	storage, err := database.NewStorage()
 	if err != nil {
 		panic(err)
 	}
+	_ = storage
 
 	srv := &http.Server{
 		Addr:         cfg.Address,
