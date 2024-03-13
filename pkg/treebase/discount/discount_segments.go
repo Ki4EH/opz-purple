@@ -41,7 +41,7 @@ func GetUserIDsList(m map[int64][]int64) []int64 {
 	return result
 }
 
-func GetSegmentsByID(userID int64) ([]int64, error) {
+func GetSegmentByID(userID int64) (int64, []int64) {
 	left, right := 0, len(UserIDs)-1
 
 	for left != right-1 {
@@ -51,14 +51,14 @@ func GetSegmentsByID(userID int64) ([]int64, error) {
 		} else if UserIDs[mid] < userID {
 			left = mid
 		} else {
-			return db[UserIDs[int64(mid)]], nil
+			return UserIDs[int64(mid)], db[UserIDs[int64(mid)]]
 		}
 	}
 	switch {
 	case userID < UserIDs[right] || userID == UserIDs[left]:
-		return db[UserIDs[int64(left)]], nil
+		return UserIDs[int64(left)], db[UserIDs[int64(left)]]
 	default:
-		return db[UserIDs[int64(right)]], nil
+		return UserIDs[int64(right)], db[UserIDs[int64(right)]]
 	}
 }
 
