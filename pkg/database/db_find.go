@@ -11,7 +11,7 @@ import (
 var wg sync.WaitGroup
 var mu sync.Mutex
 
-func SearchData(segments []int, price models.RequestPrice) models.ResponsePrice {
+func SearchData(segments []int64, price models.RequestPrice) models.ResponsePrice {
 	ansCh := make(chan models.ResponsePrice)
 	wg.Add(len(segments))
 	for id, v := range segments {
@@ -46,7 +46,6 @@ func (s *Storage) SearchInTable(table string, lc, mc int, ans chan<- models.Resp
 	var mc1, lc1, price1 int
 	err := s.db.QueryRow(sqlQuery).Scan(&mc1, &lc1, &price1)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	tableSplit := strings.Split(table, "_")
@@ -55,12 +54,12 @@ func (s *Storage) SearchInTable(table string, lc, mc int, ans chan<- models.Resp
 		Price:           int64(price1),
 		LocationId:      lc1,
 		MicrocategoryId: mc1,
-		MatrixId:        id,
+		MatrixId:        int64(id),
 	}
 	defer wg.Done()
-	//mu.Lock()
+	mu.Lock()
 	ans <- answer
-	//defer mu.Unlock()
+	defer mu.Unlock()
 }
 func (s *Storage) AddNewPrice(data models.RequestAddPrice) error {
 	var exist bool

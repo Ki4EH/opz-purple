@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Ki4EH/opz-purple/internal/models"
 	"github.com/Ki4EH/opz-purple/pkg/database"
+	"github.com/Ki4EH/opz-purple/pkg/treebase/discount"
 	"net/http"
 )
 
@@ -66,7 +67,9 @@ func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	//TODO: сегмент получение
-	ans := database.SearchData([]int{1, 2}, req)
+	seg, seg_slice := discount.GetSegmentByID(req.UserId)
+	ans := database.SearchData(seg_slice, req)
+	ans.UserSegmentId = seg
 	w.Header().Set("Content-Type", "application/json")
 	answer, _ := json.Marshal(ans)
 	w.Write(answer)
