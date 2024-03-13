@@ -52,6 +52,21 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type TableName struct {
+	table_name []string `json:"table_Name"`
+}
+
+func ReturnTableName(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	ans := database.Connection.ReturnTables()
+	answer, _ := json.Marshal(TableName{table_name: ans})
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(answer)
+	w.WriteHeader(http.StatusOK)
+}
+
 //TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
 
 //TODO: сделать создание таблицы
@@ -86,6 +101,9 @@ func SetupRoutes() http.Handler {
 	})
 	router.HandleFunc("/update", func(writer http.ResponseWriter, request *http.Request) {
 		UpdatePrice(writer, request)
+	})
+	router.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		ReturnTableName(writer, request)
 	})
 	return router
 }

@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"github.com/Ki4EH/opz-purple/internal/config"
 	"github.com/Ki4EH/opz-purple/internal/models"
 	"github.com/Ki4EH/opz-purple/pkg/treebase/location"
 	"github.com/Ki4EH/opz-purple/pkg/treebase/microcategory"
@@ -21,15 +22,17 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 
 	for id, v := range segments {
 		s := fmt.Sprintf("baseline_matrix_%d", v)
+		if len(segments) == 1 || id == 0 {
+			wg.Add(1)
+			go Connection.SearchInTable(s, price.LocationId, price.MicrocategoryId, ansCh)
+			continue
+
+		}
 		if id != 0 {
 			s = fmt.Sprintf("discount_matrix_%d", v)
 		}
-
-		wg.Add(4)
-		go Connection.SearchInTable(s, price.LocationId, price.MicrocategoryId, ansCh)
-		go Connection.SearchInTable(s, price.LocationId, mc1, ansCh)
-		go Connection.SearchInTable(s, lc1, price.MicrocategoryId, ansCh)
-		go Connection.SearchInTable(s, lc1, mc1, ansCh)
+		wg.Add(1)
+		go Connection.FastSearch(price.LocationId, price.MicrocategoryId, lc1, mc1, s, ansCh)
 	}
 
 	go func() {
@@ -38,18 +41,43 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 	}()
 
 	var baseline models.ResponsePrice
-	//var discount models.ResponsePrice
+	var discount models.ResponsePrice
 
 	for v := range ansCh {
-		fmt.Println(v)
-		//if v.MatrixId == segments[0] {
-		//	baseline = v
-		//}
-		//discount = v
-		//return discount
+		if v.MatrixId == segments[0] {
+			baseline = v
+			fmt.Println(v, "BASELINE")
+			continue
+		}
+		fmt.Println(v, "DISCOUNT", v.MatrixId)
+		discount = v
+		return discount
 	}
 
 	return baseline
+}
+
+func (s *Storage) FastSearch(lc, mc, lc1, mc1 int64, table string, ans chan<- models.ResponsePrice) {
+	sqlQuery := fmt.Sprintf("SELECT * FROM %s WHERE (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) LIMIT 1;", table, mc, lc, mc1, lc, mc, lc1, mc1, lc1)
+	var mc2, lc2, price2 int
+	err := s.db.QueryRow(sqlQuery).Scan(&mc2, &lc2, &price2)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	tableSplit := strings.Split(table, "_")
+	id, _ := strconv.Atoi(tableSplit[len(tableSplit)-1])
+	answer := models.ResponsePrice{
+		Price:           int64(price2),
+		LocationId:      lc2,
+		MicrocategoryId: mc2,
+		MatrixId:        int64(id),
+	}
+	defer wg.Done()
+	mu.Lock()
+	ans <- answer
+	mu.Unlock()
+
 }
 
 func (s *Storage) SearchInTable(table string, lc, mc int64, ans chan<- models.ResponsePrice) {
@@ -104,4 +132,21 @@ func (s *Storage) UpdatePrice(data models.RequestAddPrice) error {
 	sqlQuery := fmt.Sprintf("UPDATE %s price SET %d WHERE location_id=%d AND microcategory_id=%d;", data.Matrix, data.Price, data.LocationId, data.MicrocategoryId)
 	s.db.QueryRow(sqlQuery)
 	return nil
+}
+
+func (s *Storage) ReturnTables() []string {
+	cfg := config.MustLoad()
+	sqlQuery := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_catalog='%s' AND table_schema='public';", cfg.Name)
+	var arr []string
+	rows, err := s.db.Query(sqlQuery)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	for rows.Next() {
+		var table string
+		rows.Scan(&table)
+		arr = append(arr, table)
+	}
+	return arr
 }
