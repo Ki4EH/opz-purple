@@ -15,6 +15,13 @@ type ResponsePrice struct {
 }
 
 type RequestAddPrice struct {
+	Matrix          string `json:"matrix_name"`
+	LocationId      int    `json:"location_id"`
+	MicrocategoryId int    `json:"microcategory_id"`
+	Price           int    `json:"price"`
+}
+
+type RequestWithPercentage struct {
 	Matrix          string  `json:"matrix_name"`
 	LocationId      int     `json:"location_id"`
 	MicrocategoryId int     `json:"microcategory_id"`

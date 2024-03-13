@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Ki4EH/opz-purple/internal/models"
 	"github.com/Ki4EH/opz-purple/pkg/database"
 	"github.com/Ki4EH/opz-purple/pkg/treebase/discount"
@@ -42,17 +41,34 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err := database.Connection.UpdatePrice(req)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, http.StatusText(500), 500)
-	}
+	database.Connection.UpdatePrice(req)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
-//TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
+// TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
+func UpdatePrices(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var req models.RequestWithPercentage
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	defer r.Body.Close()
+
+	if req.Price != 0 {
+		database.Connection.UpdateManyPrices(req)
+	} else if req.Percent != 0 {
+		database.Connection.UpdateManyPricesWithPercentage(req)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
 
 //TODO: сделать создание таблицы
 
@@ -86,6 +102,9 @@ func SetupRoutes() http.Handler {
 	})
 	router.HandleFunc("/update", func(writer http.ResponseWriter, request *http.Request) {
 		UpdatePrice(writer, request)
+	})
+	router.HandleFunc("/update/percentage", func(writer http.ResponseWriter, request *http.Request) {
+		UpdatePrices(writer, request)
 	})
 	return router
 }
