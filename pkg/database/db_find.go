@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"github.com/Ki4EH/opz-purple/internal/models"
 )
 
@@ -10,15 +11,11 @@ import (
 
 func (s *Storage) AddNewPrice(data models.RequestAddPrice) error {
 	//sqlStatement := ``
-	//var la []string
 	//s.db.QueryRow("SELECT * FROM p;").Scan(&la)
-	//fmt.Println(la)
-
-	//var a interface{}
 	//
-	//s.db.QueryRow("INSERT INTO discount_matrix_3 (microcategory_id, location_id, price) VALUES (?, ?, ?);", data.MicrocategoryId, data.LocationId, data.Price).Scan(&a)
-	//fmt.Println("ура")
-	//fmt.Println(a)
-	//defer s.db.Close()
+	fmt.Println(s.db.Ping())
+	sqlQuery := fmt.Sprintf("INSERT INTO %s (microcategory_id, location_id, price) VALUES (%d, %d, %d);", "discount_matrix_3", data.MicrocategoryId, data.LocationId, data.Price)
+	s.db.QueryRow(sqlQuery)
+	defer s.db.Close()
 	return nil
 }

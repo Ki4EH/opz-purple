@@ -26,7 +26,7 @@ func NewStorage() (*Storage, error) {
 		lg.Error(fmt.Sprintf("Error connect to db %v", err))
 		return nil, err
 	}
-	defer db.Close()
+	//defer db.Close()
 	err = db.Ping()
 	if err != nil {
 		return nil, err
