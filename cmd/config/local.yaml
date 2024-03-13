@@ -5,7 +5,7 @@ http_server:
   idle_timeout: 60s
 database:
   host: "localhost"
-  port: 5433
+  port: 5432
   name: "purple_hack"
   username: "postgres"
-  password: "admin"
+  password: "loloneme"
