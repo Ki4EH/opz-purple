@@ -51,6 +51,10 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+//TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
+
+//TODO: сделать создание таблицы
+
 func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -61,8 +65,11 @@ func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer r.Body.Close()
-	//TODO: отправить ответ из (baseline, discount) матриц
+	//TODO: сегмент получение
+	ans := database.SearchData([]int{1, 2}, req)
 	w.Header().Set("Content-Type", "application/json")
+	answer, _ := json.Marshal(ans)
+	w.Write(answer)
 	w.WriteHeader(http.StatusOK)
 }
 
