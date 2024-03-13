@@ -115,22 +115,63 @@ func (s *Storage) AddNewPrice(data models.RequestAddPrice) error {
 	return nil
 }
 
-func (s *Storage) UpdatePrice(data models.RequestAddPrice) error {
-	var exist bool
+func (s *Storage) UpdatePrice(data models.RequestAddPrice) {
+	//var exist bool
 
-	existChecker := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='%s');", data.Matrix)
-	s.db.QueryRow(existChecker).Scan(&exist)
-	if exist == false {
-		return fmt.Errorf("неверное название матрицы")
-	}
-	existChecker = fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE microcategory_id=%d AND location_id=%d);", data.Matrix, data.MicrocategoryId, data.LocationId)
-	s.db.QueryRow(existChecker).Scan(&exist)
-	if exist == false {
-		return fmt.Errorf("неверный номер локации или микрокатегории")
-	}
+	//existChecker := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='%s');", data.Matrix)
+	//s.db.QueryRow(existChecker).Scan(&exist)
+	//if exist == false {
+	//	return fmt.Errorf("неверное название матрицы")
+	//}
+	//existChecker = fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE microcategory_id=%d AND location_id=%d);", data.Matrix, data.MicrocategoryId, data.LocationId)
+	//s.db.QueryRow(existChecker).Scan(&exist)
+	//if exist == false {
+	//	return fmt.Errorf("неверный номер локации или микрокатегории")
+	//}
 
 	sqlQuery := fmt.Sprintf("UPDATE %s price SET %d WHERE location_id=%d AND microcategory_id=%d;", data.Matrix, data.Price, data.LocationId, data.MicrocategoryId)
 	s.db.QueryRow(sqlQuery)
+}
+
+func (s *Storage) UpdateManyPrices(data models.RequestWithPercentage) {
+	var updater string
+	switch {
+	case data.LocationId == 0 && data.MicrocategoryId != 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=%d WHERE microcategory_id=%d;", data.Matrix, data.Price, data.MicrocategoryId)
+	case data.LocationId != 0 && data.MicrocategoryId == 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=%d WHERE location_id=%d;", data.Matrix, data.Price, data.LocationId)
+	case data.LocationId != 0 && data.MicrocategoryId != 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=%d WHERE location_id=%d AND microcategory_id=%d;", data.Matrix, data.Price, data.LocationId, data.MicrocategoryId)
+	default:
+		updater = fmt.Sprintf("UPDATE %s  SET price=%d;", data.Matrix, data.Price)
+	}
+	s.db.QueryRow(updater)
+}
+
+func (s *Storage) UpdateManyPricesWithPercentage(data models.RequestWithPercentage) {
+	var updater string
+	switch {
+	case data.LocationId == 0 && data.MicrocategoryId != 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=price * %f WHERE microcategory_id=%d;", data.Matrix, 1-data.Percent/100, data.MicrocategoryId)
+	case data.LocationId != 0 && data.MicrocategoryId == 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=price * %f WHERE location_id=%d;", data.Matrix, 1-data.Percent/100, data.LocationId)
+	case data.LocationId != 0 && data.MicrocategoryId != 0:
+		updater = fmt.Sprintf("UPDATE %s  SET price=price * %f WHERE location_id=%d AND microcategory_id=%d;", data.Matrix, 1-data.Percent/100, data.LocationId, data.MicrocategoryId)
+	default:
+		updater = fmt.Sprintf("UPDATE %s  SET price=price * %f;", data.Matrix, 1-data.Percent/100)
+	}
+	s.db.QueryRow(updater)
+}
+
+func (s *Storage) CreateNewTable(data models.RequestCreate) error {
+	creator := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (microcategory_id int PRIMARY KEY, location_id int, price int);", data.Matrix)
+	s.db.QueryRow(creator)
+	for _, row := range data.Rows {
+		err := s.AddNewPrice(models.RequestAddPrice{Matrix: data.Matrix, LocationId: row.LocationId, MicrocategoryId: row.MicrocategoryId, Price: row.Price})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
