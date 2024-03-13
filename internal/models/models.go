@@ -13,3 +13,10 @@ type ResponsePrice struct {
 	MatrixId        int   `json:"matrix_id"`
 	UserSegmentId   int64 `json:"user_segment_id"`
 }
+
+type RequestAddPrice struct {
+	Matrix          string `json:"matrix_name"`
+	LocationId      int    `json:"location_id"`
+	MicrocategoryId int    `json:"microcategory_id"`
+	Price           int    `json:"price"`
+}

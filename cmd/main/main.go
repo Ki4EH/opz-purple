@@ -5,7 +5,6 @@ import (
 	"github.com/Ki4EH/opz-purple/internal/api"
 	"github.com/Ki4EH/opz-purple/internal/config"
 	"github.com/Ki4EH/opz-purple/internal/logger"
-	"github.com/Ki4EH/opz-purple/pkg/database"
 	_ "github.com/Ki4EH/opz-purple/pkg/database"
 	_ "github.com/lib/pq"
 	"net/http"
@@ -15,11 +14,11 @@ func main() {
 	cfg := config.MustLoad()
 	fmt.Println(cfg)
 	logging, _ := logger.NewFileLogger()
-	storage, err := database.NewStorage()
-	if err != nil {
-		panic(err)
-	}
-	_ = storage
+	//storage, err := database.NewStorage()
+	//if err != nil {
+	//	panic(err)
+	//}
+	//_ = storage
 
 	srv := &http.Server{
 		Addr:         cfg.Address,

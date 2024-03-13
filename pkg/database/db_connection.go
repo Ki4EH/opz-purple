@@ -12,6 +12,8 @@ type Storage struct {
 	db *sql.DB
 }
 
+var Connection, _ = NewStorage()
+
 func NewStorage() (*Storage, error) {
 	cfg := config.MustLoad()
 	connStr := fmt.Sprintf("host=%s port=%d user=%s "+
