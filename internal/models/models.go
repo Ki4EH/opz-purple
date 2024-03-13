@@ -28,3 +28,14 @@ type RequestWithPercentage struct {
 	Price           int     `json:"price"`
 	Percent         float64 `json:"percent"`
 }
+
+type Row struct {
+	LocationId      int `json:"location_id"`
+	MicrocategoryId int `json:"microcategory_id"`
+	Price           int `json:"price"`
+}
+
+type RequestCreate struct {
+	Matrix string `json:"matrix_name"`
+	Rows   []Row  `json:"rows"`
+}

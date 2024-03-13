@@ -134,3 +134,15 @@ func (s *Storage) UpdateManyPricesWithPercentage(data models.RequestWithPercenta
 	}
 	s.db.QueryRow(updater)
 }
+
+func (s *Storage) CreateNewTable(data models.RequestCreate) error {
+	creator := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (microcategory_id int PRIMARY KEY, location_id int, price int);", data.Matrix)
+	s.db.QueryRow(creator)
+	for _, row := range data.Rows {
+		err := s.AddNewPrice(models.RequestAddPrice{Matrix: data.Matrix, LocationId: row.LocationId, MicrocategoryId: row.MicrocategoryId, Price: row.Price})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -47,7 +47,6 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
 func UpdatePrices(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -70,7 +69,22 @@ func UpdatePrices(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-//TODO: сделать создание таблицы
+func CreateTable(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	var req models.RequestCreate
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	defer r.Body.Close()
+
+	database.Connection.CreateNewTable(req)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
 
 func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -83,6 +97,7 @@ func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	//TODO: сегмент получение
+
 	seg, seg_slice := discount.GetSegmentByID(req.UserId)
 	ans := database.SearchData(seg_slice, req)
 	ans.UserSegmentId = seg
@@ -103,8 +118,11 @@ func SetupRoutes() http.Handler {
 	router.HandleFunc("/update", func(writer http.ResponseWriter, request *http.Request) {
 		UpdatePrice(writer, request)
 	})
-	router.HandleFunc("/update/percentage", func(writer http.ResponseWriter, request *http.Request) {
+	router.HandleFunc("/update/many", func(writer http.ResponseWriter, request *http.Request) {
 		UpdatePrices(writer, request)
+	})
+	router.HandleFunc("/create", func(writer http.ResponseWriter, request *http.Request) {
+		CreateTable(writer, request)
 	})
 	return router
 }
