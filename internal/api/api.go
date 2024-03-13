@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Ki4EH/opz-purple/internal/models"
 	"github.com/Ki4EH/opz-purple/pkg/database"
 	"github.com/Ki4EH/opz-purple/pkg/treebase/discount"
@@ -80,6 +79,14 @@ func CreateTable(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer r.Body.Close()
+	//TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
+
+	database.Connection.CreateNewTable(req)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
 type TableName struct {
 	table_name []string `json:"table_Name"`
 }
@@ -92,14 +99,6 @@ func ReturnTableName(w http.ResponseWriter, r *http.Request) {
 	answer, _ := json.Marshal(TableName{table_name: ans})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(answer)
-	w.WriteHeader(http.StatusOK)
-}
-
-//TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
-
-	database.Connection.CreateNewTable(req)
-
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
