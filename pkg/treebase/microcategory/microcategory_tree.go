@@ -5,6 +5,8 @@ import (
 	"github.com/Ki4EH/opz-purple/pkg/utils"
 )
 
+var CategoriesParentIDs []int64
+
 func GetCategoriesTree() *CategoryNode {
 	// Создаем корневую категорию - ROOT
 	rootNode := NewCategory("ROOT")
@@ -13,6 +15,7 @@ func GetCategoriesTree() *CategoryNode {
 
 	for _, category := range keys {
 		categoryNode := NewCategory(category)
+		CategoriesParentIDs = append(CategoriesParentIDs, categoryNode.ID)
 
 		for _, subCategory := range rawCategories[category] {
 			subCategoryNode := NewCategory(subCategory)
@@ -42,6 +45,10 @@ func NewCategory(name string) *CategoryNode {
 		Name:     name,
 		Children: []*CategoryNode{},
 	}
+}
+
+func GetCategoryParent(id int64) int64 {
+	return utils.GetParentID(id, CategoriesParentIDs)
 }
 
 // AddChild Добавляет дочернюю локацию к родительской категории

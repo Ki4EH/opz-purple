@@ -6,7 +6,6 @@ import (
 	"github.com/Ki4EH/opz-purple/internal/config"
 	"github.com/Ki4EH/opz-purple/internal/logger"
 	_ "github.com/Ki4EH/opz-purple/pkg/database"
-	"github.com/Ki4EH/opz-purple/pkg/treebase/discount"
 	_ "github.com/lib/pq"
 	"net/http"
 )
@@ -29,8 +28,7 @@ func main() {
 		IdleTimeout:  cfg.IdleTimeout,
 	}
 
-	fmt.Println(discount.GetSegmentsByID(1000))
-	fmt.Println(discount.GetSegmentsByID(4500))
+	//fmt.Println(location.GetLocationParent(53))
 
 	logging.Info("[SERVER] Starting server")
 
