@@ -1,8 +1,8 @@
 package models
 
 type RequestPrice struct {
-	LocationId      int   `json:"location_id"`
-	MicrocategoryId int   `json:"microcategory_id"`
+	LocationId      int64 `json:"location_id"`
+	MicrocategoryId int64 `json:"microcategory_id"`
 	UserId          int64 `json:"user_id"`
 }
 

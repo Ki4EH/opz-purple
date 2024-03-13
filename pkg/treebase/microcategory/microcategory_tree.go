@@ -7,6 +7,8 @@ import (
 
 var CategoriesParentIDs []int64
 
+var CreateMicrocategoryTree = GetCategoriesTree()
+
 func GetCategoriesTree() *CategoryNode {
 	// Создаем корневую категорию - ROOT
 	rootNode := NewCategory("ROOT")

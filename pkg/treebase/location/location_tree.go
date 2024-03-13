@@ -7,6 +7,8 @@ import (
 
 var LocationParentIDs []int64
 
+var CreateLocationTree = GetLocationsTree()
+
 func GetLocationsTree() *LocationNode {
 	// Создаем корневую локацию - Все регионы
 	allRegions := NewLocation("Все регионы")
