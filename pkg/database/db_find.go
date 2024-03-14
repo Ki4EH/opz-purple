@@ -48,10 +48,8 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 	for v := range ansCh {
 		if v.MatrixId == segments[0] {
 			baseline = v
-			fmt.Println(v, "BASELINE")
 			continue
 		}
-		fmt.Println(v, "DISCOUNT", v.MatrixId)
 		if int64(v.LocationId) == price.LocationId && int64(v.MicrocategoryId) == price.MicrocategoryId {
 			return v
 		}
@@ -85,11 +83,12 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 func (s *Storage) FastSearch(lc, mc, lc1, mc1 int64, table string, ans chan<- models.ResponsePrice) {
 	sqlQuery := fmt.Sprintf("SELECT * FROM %s WHERE (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) OR (microcategory_id = %d AND location_id = %d) LIMIT 1;", table, mc, lc, mc1, lc, mc, lc1, mc1, lc1)
 	var mc2, lc2, price2 int
-	err := s.db.QueryRow(sqlQuery).Scan(&mc2, &lc2, &price2)
+	rows, err := s.db.Query(sqlQuery)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	rows.Scan(&mc2, &lc2, &price2)
 	tableSplit := strings.Split(table, "_")
 	id, _ := strconv.Atoi(tableSplit[len(tableSplit)-1])
 	answer := models.ResponsePrice{
