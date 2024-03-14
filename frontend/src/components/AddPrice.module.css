@@ -1,0 +1,61 @@
+.button{
+    min-width: 162px;
+    max-width: 300px;
+    height: 45px;
+    background-color: #292929;
+    color: #fff;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+    align-items: center;
+    padding-top: 5px;
+}
+.button:hover{
+    background-color: #000;
+}
+
+.container{
+    position: absolute;
+    top: 70px;
+    left: 32%;
+    right: 32%;
+    max-width: 600px;
+    margin:auto;
+    min-height: 194px;
+    background-color: rgba(230, 230, 230, 0.7);
+    border-radius: 15px;
+    padding: 8px;
+    color:#292929;
+}
+
+.container form{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 5px;
+}
+
+.container form select{
+    background-color: rgba(246, 246, 246, 1);
+    border-radius: 5px;
+    border: 1px solid #292929;
+}
+
+.container form input{
+    background-color: rgba(246, 246, 246, 1);
+    border-radius: 5px;
+    border: 1px solid #292929;
+    width: 100%;
+}
+.container form button{
+    text-decoration: underline;
+    cursor: pointer;
+    color: #000;
+    font-size: 22px;
+}
+
+.rows{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-column-gap: 3px;
+}
