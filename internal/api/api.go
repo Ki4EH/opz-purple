@@ -87,19 +87,20 @@ func CreateTable(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type TableName struct {
-	table_name []string `json:"table_Name"`
-}
-
 func ReturnTableName(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	ans := database.Connection.ReturnTables()
-	answer, _ := json.Marshal(TableName{table_name: ans})
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(answer)
+	original := models.TableName{TableNameArr: ans}
+	var transformed []models.TableId
+	for _, table := range original.TableNameArr {
+		transformed = append(transformed, models.TableId{ID: table})
+	}
+	jsonByte, _ := json.Marshal(transformed)
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonByte)
 }
 
 func ReturnPrice(w http.ResponseWriter, r *http.Request) {
@@ -112,8 +113,6 @@ func ReturnPrice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer r.Body.Close()
-	//TODO: сегмент получение
-
 	seg, seg_slice := discount.GetSegmentByID(req.UserId)
 	ans := database.SearchData(seg_slice, req)
 	ans.UserSegmentId = seg

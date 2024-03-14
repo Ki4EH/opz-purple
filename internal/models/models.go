@@ -39,3 +39,11 @@ type RequestCreate struct {
 	Matrix string `json:"matrix_name"`
 	Rows   []Row  `json:"rows"`
 }
+
+type TableName struct {
+	TableNameArr []string `json:"tables"`
+}
+
+type TableId struct {
+	ID string `json:"id"`
+}

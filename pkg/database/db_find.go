@@ -16,10 +16,8 @@ var mu sync.Mutex
 
 func SearchData(segments []int64, price models.RequestPrice) models.ResponsePrice {
 	ansCh := make(chan models.ResponsePrice)
-
 	mc1 := microcategory.GetCategoryParent(price.MicrocategoryId)
 	lc1 := location.GetLocationParent(price.LocationId)
-
 	for id, v := range segments {
 		s := fmt.Sprintf("baseline_matrix_%d", v)
 		if len(segments) == 1 || id == 0 {
@@ -43,6 +41,8 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 	var baseline models.ResponsePrice
 	var discount models.ResponsePrice
 
+	var bestMatch models.ResponsePrice
+
 	for v := range ansCh {
 		if v.MatrixId == segments[0] {
 			baseline = v
@@ -50,8 +50,17 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 			continue
 		}
 		fmt.Println(v, "DISCOUNT", v.MatrixId)
-		discount = v
-		return discount
+		if int64(v.LocationId) == price.LocationId && int64(v.MicrocategoryId) == price.MicrocategoryId {
+			return v
+		}
+
+		if bestMatch.Price == 0 {
+			bestMatch = v
+			continue
+		}
+
+		//discount = v
+		//return discount
 	}
 
 	return baseline
@@ -74,9 +83,7 @@ func (s *Storage) FastSearch(lc, mc, lc1, mc1 int64, table string, ans chan<- mo
 		MatrixId:        int64(id),
 	}
 	defer wg.Done()
-	mu.Lock()
 	ans <- answer
-	mu.Unlock()
 
 }
 
