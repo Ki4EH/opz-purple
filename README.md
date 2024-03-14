@@ -33,3 +33,15 @@
 - Ответы на ошибки содержат соответствующие коды статуса и сообщения об ошибке.
 - Убедитесь, что для каждой конечной точки используется правильный метод (POST, PUT, GET).
 - Проверьте формат запроса и ответа для каждой конечной точки, чтобы обеспечить правильное использование.
+- При запуске backend нужно создать папку в cmd\config и туда добавить .yaml файл со след структурой
+- env: "local"
+http_server:
+  address: "localhost:8082"
+  timeout: 2s
+  idle_timeout: 60s
+database:
+  host: "localhost"
+  port: DB_PORT
+  name: DB_NAME
+  username: DB_USERNAME
+  password: DB_PASSWORD
