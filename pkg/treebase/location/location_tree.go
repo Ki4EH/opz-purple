@@ -2,16 +2,30 @@ package location
 
 import (
 	"fmt"
+	"github.com/Ki4EH/opz-purple/pkg/utils"
 )
+
+var LocationParentIDs []int64
+
+var CreateLocationTree = GetLocationsTree()
 
 func GetLocationsTree() *LocationNode {
 	// Создаем корневую локацию - Все регионы
 	allRegions := NewLocation("Все регионы")
 
-	for region, cities := range rawLocations {
-		regionNode := NewLocation(region)
+	//var keys []string
+	//for region := range rawLocations {
+	//	keys = append(keys, region)
+	//}
+	//sort.Strings(keys)
 
-		for _, city := range cities {
+	keys := utils.GetKeys(rawLocations)
+
+	for _, region := range keys {
+		regionNode := NewLocation(region)
+		LocationParentIDs = append(LocationParentIDs, regionNode.ID)
+
+		for _, city := range rawLocations[region] {
 			cityNode := NewLocation(city)
 			regionNode.AddChild(cityNode)
 		}
@@ -38,6 +52,10 @@ func NewLocation(name string) *LocationNode {
 		Name:     name,
 		Children: []*LocationNode{},
 	}
+}
+
+func GetLocationParent(id int64) int64 {
+	return utils.GetParentID(id, LocationParentIDs)
 }
 
 // AddChild Добавляет дочернюю локацию к родительской локации

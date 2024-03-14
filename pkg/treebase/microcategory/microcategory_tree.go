@@ -2,16 +2,24 @@ package microcategory
 
 import (
 	"fmt"
+	"github.com/Ki4EH/opz-purple/pkg/utils"
 )
+
+var CategoriesParentIDs []int64
+
+var CreateMicrocategoryTree = GetCategoriesTree()
 
 func GetCategoriesTree() *CategoryNode {
 	// Создаем корневую категорию - ROOT
 	rootNode := NewCategory("ROOT")
 
-	for category, subCategories := range rawCategories {
-		categoryNode := NewCategory(category)
+	keys := utils.GetKeys(rawCategories)
 
-		for _, subCategory := range subCategories {
+	for _, category := range keys {
+		categoryNode := NewCategory(category)
+		CategoriesParentIDs = append(CategoriesParentIDs, categoryNode.ID)
+
+		for _, subCategory := range rawCategories[category] {
 			subCategoryNode := NewCategory(subCategory)
 			categoryNode.AddChild(subCategoryNode)
 		}
@@ -39,6 +47,10 @@ func NewCategory(name string) *CategoryNode {
 		Name:     name,
 		Children: []*CategoryNode{},
 	}
+}
+
+func GetCategoryParent(id int64) int64 {
+	return utils.GetParentID(id, CategoriesParentIDs)
 }
 
 // AddChild Добавляет дочернюю локацию к родительской категории

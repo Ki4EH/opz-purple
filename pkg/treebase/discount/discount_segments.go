@@ -1,13 +1,18 @@
 package discount
 
+import (
+	"slices"
+)
+
 var db = map[int64][]int64{
-	2100: {156, 278},
-	2200: {168, 290, 412},
-	2300: {180},
+	2100: {1, 2},
+	2200: {3, 1, 2},
+	2300: {2},
 	2400: {192, 314, 436, 158},
 	2500: {204, 326, 148, 370, 592},
 	2600: {216},
 	2700: {228, 350, 472, 194},
+	// TODO: придумать что делать с этим крайним случаем
 	2800: {},
 	2900: {240, 362, 484, 206, 428},
 	3000: {252, 374},
@@ -25,12 +30,43 @@ var db = map[int64][]int64{
 	4200: {396, 518, 640, 262},
 }
 
+var UserIDs = GetUserIDsList(db)
+
+func GetUserIDsList(m map[int64][]int64) []int64 {
+	var result []int64
+	for key := range m {
+		result = append(result, key)
+	}
+	slices.Sort(result)
+	return result
+}
+
+func GetSegmentByID(userID int64) (int64, []int64) {
+	left, right := 0, len(UserIDs)-1
+
+	for left != right-1 {
+		mid := left + (right-left)/2
+		if UserIDs[mid] > userID {
+			right = mid
+		} else if UserIDs[mid] < userID {
+			left = mid
+		} else {
+			return UserIDs[int64(mid)], db[UserIDs[int64(mid)]]
+		}
+	}
+	switch {
+	case userID < UserIDs[right] || userID == UserIDs[left]:
+		return UserIDs[int64(left)], db[UserIDs[int64(left)]]
+	default:
+		return UserIDs[int64(right)], db[UserIDs[int64(right)]]
+	}
+}
+
 func GetSegmentsByUserIDs(userIDs []int64) map[int64][]int64 {
 	result := make(map[int64][]int64, len(userIDs))
 
 	for _, userID := range userIDs {
 		result[userID] = db[userID]
 	}
-
 	return result
 }
