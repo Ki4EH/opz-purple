@@ -1,1 +1,1 @@
-export const URL = "https://jsonplaceholder.typicode.com/posts"
+export const URL = "localhost:8082/"
