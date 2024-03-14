@@ -18,6 +18,7 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 	ansCh := make(chan models.ResponsePrice)
 	mc1 := microcategory.GetCategoryParent(price.MicrocategoryId)
 	lc1 := location.GetLocationParent(price.LocationId)
+
 	for id, v := range segments {
 		s := fmt.Sprintf("baseline_matrix_%d", v)
 		if len(segments) == 1 || id == 0 {
@@ -42,6 +43,7 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 	var discount models.ResponsePrice
 
 	var bestMatch models.ResponsePrice
+	var diff int64 = -1
 
 	for v := range ansCh {
 		if v.MatrixId == segments[0] {
@@ -54,16 +56,30 @@ func SearchData(segments []int64, price models.RequestPrice) models.ResponsePric
 			return v
 		}
 
-		if bestMatch.Price == 0 {
+		switch {
+		case bestMatch.Price == 0:
 			bestMatch = v
 			continue
+		case v.MicrocategoryId < bestMatch.MicrocategoryId && v.LocationId == bestMatch.LocationId:
+			return discount
+		case v.MicrocategoryId == bestMatch.MicrocategoryId && v.LocationId < bestMatch.LocationId:
+			return discount
+		default:
+			if diff == -1 {
+				diff = price.MicrocategoryId + price.LocationId - int64(v.MicrocategoryId-v.LocationId)
+				bestMatch = v
+			} else if diff > price.MicrocategoryId+price.LocationId-int64(v.MicrocategoryId-v.LocationId) {
+				diff = price.MicrocategoryId + price.LocationId - int64(v.MicrocategoryId-v.LocationId)
+				bestMatch = v
+			}
 		}
-
 		//discount = v
 		//return discount
 	}
-
-	return baseline
+	if diff == -1 {
+		return baseline
+	}
+	return bestMatch
 }
 
 func (s *Storage) FastSearch(lc, mc, lc1, mc1 int64, table string, ans chan<- models.ResponsePrice) {

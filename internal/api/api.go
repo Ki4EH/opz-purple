@@ -79,7 +79,6 @@ func CreateTable(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer r.Body.Close()
-	//TODO: нам нужно сделать хендлер на увелмчение в процентаже всех локайи(категорий)
 
 	database.Connection.CreateNewTable(req)
 
